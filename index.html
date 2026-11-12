@@ -1,156 +1,162 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#10b981">
-<title>🧪 Lab - Minhas Finanças</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧪</text></svg>">
-<link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#10b981">
+  <meta name="description" content="Acompanhe suas contas, receitas, despesas e empréstimos em um só lugar.">
+  <title>🧪 Lab - Minhas Finanças</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧪</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
-<!-- LOGIN -->
-<div class="pin-overlay" id="authOverlay">
-  <div class="pin-box">
-    <div class="pin-icon">💰</div>
-    <h2 id="authTitle">Entrar (Lab)</h2>
-    <input id="authEmail" type="email" placeholder="E-mail" autocomplete="email" />
-    <input id="authSenha" type="password" placeholder="Senha" autocomplete="current-password" />
-    <div class="pin-erro" id="authErro"></div>
-    <button onclick="APP.auth.entrar()" id="authBtn">Entrar</button>
-    <button class="pin-link" onclick="APP.auth.alternarModo()" id="authToggle">Criar conta</button>
-    <button class="pin-link" onclick="APP.auth.esqueciSenha()" id="authEsqueci" style="color:var(--info)">Esqueci minha senha</button>
-  </div>
-</div>
-
-<!-- PIN -->
-<div class="pin-overlay hidden" id="pinOverlay">
-  <div class="pin-box">
-    <div class="pin-icon">🔒</div>
-    <h2 id="pinTitle">Digite seu PIN</h2>
-    <input type="tel" id="pinInput" class="pin-input" maxlength="6" inputmode="numeric" placeholder="••••" autocomplete="off" />
-    <input type="tel" id="pinConfirm" class="pin-input" maxlength="6" inputmode="numeric" placeholder="••••" autocomplete="off" style="display:none;" />
-    <div class="pin-erro" id="pinErro"></div>
-    <button onclick="APP.pin.verificar()" id="pinBtn">Entrar</button>
-    <button class="pin-link" onclick="APP.pin.esqueci()" id="pinEsqueci">Esqueci o PIN (sair)</button>
-    <button class="pin-link" onclick="APP.pin.pular()" id="pinPular" style="display:none;">Pular</button>
-  </div>
-</div>
-
-<!-- HEADER -->
-<div class="header">
-  <div class="header-bar">
-    <div class="left"><div class="sync-dot" id="syncDot"></div></div>
-    <div class="right">
-      <button class="icon-btn" onclick="APP.inat.abrirConfig()">⏱️</button>
-      <button class="icon-btn danger" onclick="APP.auth.sair()">🚪</button>
+  <!-- Login -->
+  <div class="pin-overlay" id="authOverlay" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+    <div class="pin-box">
+      <div class="pin-icon" aria-hidden="true">💰</div>
+      <h2 id="authTitle">Entrar (Lab)</h2>
+      <label for="authEmail">E-mail</label>
+      <input id="authEmail" type="email" placeholder="E-mail" autocomplete="email" required>
+      <label for="authSenha">Senha</label>
+      <input id="authSenha" type="password" placeholder="Senha" autocomplete="current-password" required>
+      <div class="pin-erro" id="authErro" role="alert" aria-live="polite"></div>
+      <button type="button" onclick="APP.auth.entrar()" id="authBtn">Entrar</button>
+      <button type="button" class="pin-link" onclick="APP.auth.alternarModo()" id="authToggle">Criar conta</button>
+      <button type="button" class="pin-link" onclick="APP.auth.esqueciSenha()" id="authEsqueci" style="color:var(--info)">Esqueci minha senha</button>
     </div>
   </div>
-  <h1>🧪 Lab Finanças</h1>
-  <p id="mesAtual"></p>
-  <div class="user-info" id="userInfo"></div>
-</div>
 
-<!-- PAINEL -->
-<div class="tab active" id="tab-painel">
-  <div class="saldo-total" id="saldoTotalBox"><div class="label">Saldo Total</div><div class="valor" id="saldoTotalValor">R$ 0,00</div></div>
-  <div class="kpi-grid">
-    <div class="kpi-box pos"><b id="kpiEntradas">R$ 0</b><span>Entradas</span></div>
-    <div class="kpi-box neg"><b id="kpiSaidas">R$ 0</b><span>Saídas</span></div>
-  </div>
-  <div class="card"><h2>🏦 Saldo por Conta</h2><div id="contasResumo"></div></div>
-  <div class="card"><h2>💸 Empréstimo Familiar</h2><div id="emprestimoResumo"></div></div>
-</div>
-
-<!-- NOVA (MODO RÁPIDO PERSONALIZADO) -->
-<div class="tab" id="tab-nova">
-  <div class="card" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 1px solid var(--primary);">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-      <h2 style="color:var(--primary); margin:0;">⚡ Lançamento Rápido</h2>
-      <button class="sm sec" onclick="APP.abrirGerenciarAtalhos()">⚙️ Personalizar</button>
+  <!-- PIN -->
+  <div class="pin-overlay hidden" id="pinOverlay" role="dialog" aria-modal="true" aria-labelledby="pinTitle">
+    <div class="pin-box">
+      <div class="pin-icon" aria-hidden="true">🔒</div>
+      <h2 id="pinTitle">Digite seu PIN</h2>
+      <label class="sr-only" for="pinInput">PIN</label>
+      <input type="tel" id="pinInput" class="pin-input" maxlength="6" inputmode="numeric" placeholder="••••" autocomplete="off">
+      <label class="sr-only" for="pinConfirm">Confirme seu PIN</label>
+      <input type="tel" id="pinConfirm" class="pin-input" maxlength="6" inputmode="numeric" placeholder="••••" autocomplete="off" style="display:none;">
+      <div class="pin-erro" id="pinErro" role="alert" aria-live="polite"></div>
+      <button type="button" onclick="APP.pin.verificar()" id="pinBtn">Entrar</button>
+      <button type="button" class="pin-link" onclick="APP.pin.esqueci()" id="pinEsqueci">Esqueci o PIN (sair)</button>
+      <button type="button" class="pin-link" onclick="APP.pin.pular()" id="pinPular" style="display:none;">Pular</button>
     </div>
-    <p class="hint" style="margin-bottom:12px;">Toque no seu atalho e digite só o valor.</p>
-    <div class="quick-grid" id="quickGrid"></div>
-    <div id="semAtalhos" class="empty" style="display:none;">Nenhum atalho criado.<br>Clique em ⚙️ Personalizar.</div>
   </div>
 
-  <!-- FORMULÁRIO COMPLETO -->
-  <div class="card">
-    <h2>📝 Formulário Completo</h2>
-    <div class="pill-group" id="tipoGroup">
-      <button data-tipo="entrada" onclick="APP.setTipo('entrada')">⬆ Entrada</button>
-      <button data-tipo="saida" onclick="APP.setTipo('saida')">⬇ Saída</button>
-      <button data-tipo="transferencia" onclick="APP.setTipo('transferencia')">↔ Transf.</button>
+  <header class="header">
+    <div class="header-bar">
+      <div class="left"><div class="sync-dot" id="syncDot" role="status" aria-label="Status de sincronização"></div></div>
+      <div class="right">
+        <button type="button" class="icon-btn" onclick="APP.inat.abrirConfig()" aria-label="Configurar tempo de inatividade">⏱️</button>
+        <button type="button" class="icon-btn danger" onclick="APP.auth.sair()" aria-label="Sair da conta">🚪</button>
+      </div>
     </div>
-    <label>Descrição</label><input id="novaDesc" placeholder="Ex: Salário..." />
-    <label>Valor (R$)</label><input id="novaValor" type="text" inputmode="decimal" placeholder="0,00" />
-    <label>Data</label><input id="novaData" type="date" />
-    <label>Conta</label><select id="novaConta"></select>
-    <div id="contaDestinoWrap" style="display:none;"><label>Conta Destino</label><select id="novaContaDestino"></select></div>
-    <label>Categoria</label><select id="novaCategoria"></select>
-    <button onclick="APP.salvarTransacao()">💾 Salvar Completo</button>
-  </div>
-</div>
+    <h1>🧪 Lab Finanças</h1>
+    <p id="mesAtual" aria-live="polite"></p>
+    <div class="user-info" id="userInfo"></div>
+  </header>
 
-<div class="tab" id="tab-contas"><div class="card"><h2>🏦 Minhas Contas</h2><div id="listaContas"></div><button class="sec" onclick="APP.abrirEditarConta()">⚙️ Editar Contas</button></div></div>
-<div class="tab" id="tab-emprestimos">
-  <div class="card"><h2>🤝 Empréstimos</h2><button onclick="APP.abrirNovoEmprestimo()">➕ Novo Empréstimo</button></div>
-  <div class="card"><h2>📊 Em Aberto</h2><div id="listaEmprestimos"></div></div>
-</div>
-<div class="tab" id="tab-analises">
-  <div class="card"><h2>📈 Gastos por Categoria</h2><div class="chart-container"><canvas id="chartPizza"></canvas></div><div id="semDadosPizza" class="empty" style="display:none;">Sem saídas.</div></div>
-  <div class="card"><h2>📊 Entradas vs Saídas</h2><div class="chart-container" style="height: 250px;"><canvas id="chartBarras"></canvas></div></div>
-</div>
-<div class="tab" id="tab-config">
-  <div class="card"><h2>👤 Conta</h2><p class="hint" id="contaInfo"></p><button class="danger" onclick="APP.auth.sair()">🚪 Sair</button></div>
-</div>
+  <main>
+    <!-- Painel -->
+    <section class="tab active" id="tab-painel" aria-label="Painel financeiro">
+      <div class="saldo-total" id="saldoTotalBox"><div class="label">Saldo Total</div><div class="valor" id="saldoTotalValor">R$ 0,00</div></div>
+      <div class="kpi-grid">
+        <div class="kpi-box pos"><b id="kpiEntradas">R$ 0</b><span>Entradas</span></div>
+        <div class="kpi-box neg"><b id="kpiSaidas">R$ 0</b><span>Saídas</span></div>
+      </div>
+      <div class="card"><h2>🏦 Saldo por Conta</h2><div id="contasResumo"></div></div>
+      <div class="card"><h2>💸 Empréstimo Familiar</h2><div id="emprestimoResumo"></div></div>
+    </section>
 
-<!-- TABBAR -->
-<div class="tabbar">
-  <button class="active" data-tab="painel" onclick="APP.mudarTab('painel')">📊<br>Painel</button>
-  <button data-tab="nova" onclick="APP.mudarTab('nova')">➕<br>Nova</button>
-  <button data-tab="emprestimos" onclick="APP.mudarTab('emprestimos')">🤝<br>Emprést.</button>
-  <button data-tab="analises" onclick="APP.mudarTab('analises')">📈<br>Análise</button>
-  <button data-tab="config" onclick="APP.mudarTab('config')">⚙️<br>Config</button>
-</div>
+    <!-- Novo lançamento -->
+    <section class="tab" id="tab-nova" aria-label="Novo lançamento">
+      <div class="card" style="background:linear-gradient(135deg,#1e293b 0%,#0f172a 100%);border:1px solid var(--primary);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <h2 style="color:var(--primary);margin:0;">⚡ Lançamento Rápido</h2>
+          <button type="button" class="sm sec" onclick="APP.abrirGerenciarAtalhos()">⚙️ Personalizar</button>
+        </div>
+        <p class="hint" style="margin-bottom:12px;">Toque no seu atalho e digite só o valor.</p>
+        <div class="quick-grid" id="quickGrid"></div>
+        <div id="semAtalhos" class="empty" style="display:none;">Nenhum atalho criado.<br>Clique em ⚙️ Personalizar.</div>
+      </div>
 
-<!-- MODAL QUICK ADD -->
-<div class="modal-overlay" id="modalQuickAdd">
-  <div class="modal-content" style="text-align:center; max-width: 350px;">
-    <h2 id="quickTitle" style="color:var(--primary); margin-bottom:15px;">Padaria</h2>
-    <input type="text" id="quickValor" inputmode="decimal" placeholder="0,00" style="font-size: 2.5rem; text-align: center; padding: 15px; font-weight: bold; margin-bottom: 15px; background: var(--card-dark); color: var(--primary); border: 2px solid var(--primary);">
-    <button onclick="APP.salvarQuick()" style="font-size: 1.2rem; padding: 15px;">✅ Confirmar Pagamento</button>
-    <button class="sec" onclick="APP.fecharModal('modalQuickAdd')">Cancelar</button>
-  </div>
-</div>
+      <div class="card">
+        <h2>📝 Formulário Completo</h2>
+        <div class="pill-group" id="tipoGroup" role="group" aria-label="Tipo de lançamento">
+          <button type="button" data-tipo="entrada" onclick="APP.setTipo('entrada')">⬆ Entrada</button>
+          <button type="button" data-tipo="saida" onclick="APP.setTipo('saida')">⬇ Saída</button>
+          <button type="button" data-tipo="transferencia" onclick="APP.setTipo('transferencia')">↔ Transf.</button>
+        </div>
+        <label for="novaDesc">Descrição</label><input id="novaDesc" placeholder="Ex: Salário...">
+        <label for="novaValor">Valor (R$)</label><input id="novaValor" type="text" inputmode="decimal" placeholder="0,00">
+        <label for="novaData">Data</label><input id="novaData" type="date">
+        <label for="novaConta">Conta</label><select id="novaConta"></select>
+        <div id="contaDestinoWrap" style="display:none;"><label for="novaContaDestino">Conta Destino</label><select id="novaContaDestino"></select></div>
+        <label for="novaCategoria">Categoria</label><select id="novaCategoria"></select>
+        <button type="button" onclick="APP.salvarTransacao()">💾 Salvar Completo</button>
+      </div>
+    </section>
 
-<!-- MODAL GERENCIAR ATALHOS -->
-<div class="modal-overlay" id="modalGerenciarAtalhos">
-  <div class="modal-content">
-    <h2 style="color:var(--info); margin-bottom:15px;">⚙️ Personalizar Atalhos</h2>
-    <div id="listaAtalhosConfig"></div>
-    <hr style="border-color:var(--border); margin: 15px 0;">
-    <h3 style="font-size:0.9rem; margin-bottom:10px; color:var(--text);">➕ Novo Atalho</h3>
-    <div class="row">
-      <input id="atalhoEmoji" placeholder="Emoji (ex: 💡)" style="flex:1; text-align:center;" maxlength="2" />
-      <input id="atalhoNome" placeholder="Nome (ex: Energia)" style="flex:3;" />
+    <section class="tab" id="tab-contas" aria-label="Contas">
+      <div class="card"><h2>🏦 Minhas Contas</h2><div id="listaContas"></div><button type="button" class="sec" onclick="APP.abrirEditarConta()">⚙️ Editar Contas</button></div>
+    </section>
+    <section class="tab" id="tab-emprestimos" aria-label="Empréstimos">
+      <div class="card"><h2>🤝 Empréstimos</h2><button type="button" onclick="APP.abrirNovoEmprestimo()">➕ Novo Empréstimo</button></div>
+      <div class="card"><h2>📊 Em Aberto</h2><div id="listaEmprestimos"></div></div>
+    </section>
+    <section class="tab" id="tab-analises" aria-label="Análises">
+      <div class="card"><h2>📈 Gastos por Categoria</h2><div class="chart-container"><canvas id="chartPizza" role="img" aria-label="Gráfico de gastos por categoria"></canvas></div><div id="semDadosPizza" class="empty" style="display:none;">Sem saídas.</div></div>
+      <div class="card"><h2>📊 Entradas vs Saídas</h2><div class="chart-container" style="height:250px;"><canvas id="chartBarras" role="img" aria-label="Gráfico de entradas e saídas"></canvas></div></div>
+    </section>
+    <section class="tab" id="tab-config" aria-label="Configurações">
+      <div class="card"><h2>👤 Conta</h2><p class="hint" id="contaInfo"></p><button type="button" class="danger" onclick="APP.auth.sair()">🚪 Sair</button></div>
+    </section>
+  </main>
+
+  <nav class="tabbar" aria-label="Navegação principal">
+    <button type="button" class="active" data-tab="painel" aria-label="Painel" aria-current="page" onclick="APP.mudarTab('painel')">📊<br>Painel</button>
+    <button type="button" data-tab="nova" aria-label="Novo lançamento" onclick="APP.mudarTab('nova')">➕<br>Nova</button>
+    <button type="button" data-tab="emprestimos" aria-label="Empréstimos" onclick="APP.mudarTab('emprestimos')">🤝<br>Emprést.</button>
+    <button type="button" data-tab="analises" aria-label="Análises" onclick="APP.mudarTab('analises')">📈<br>Análise</button>
+    <button type="button" data-tab="config" aria-label="Configurações" onclick="APP.mudarTab('config')">⚙️<br>Config</button>
+  </nav>
+
+  <!-- Modal de lançamento rápido -->
+  <div class="modal-overlay" id="modalQuickAdd" role="dialog" aria-modal="true" aria-labelledby="quickTitle">
+    <div class="modal-content" style="text-align:center;max-width:350px;">
+      <h2 id="quickTitle" style="color:var(--primary);margin-bottom:15px;">Padaria</h2>
+      <label class="sr-only" for="quickValor">Valor do lançamento</label>
+      <input type="text" id="quickValor" inputmode="decimal" placeholder="0,00" style="font-size:2.5rem;text-align:center;padding:15px;font-weight:bold;margin-bottom:15px;background:var(--card-dark);color:var(--primary);border:2px solid var(--primary);">
+      <button type="button" onclick="APP.salvarQuick()" style="font-size:1.2rem;padding:15px;">✅ Confirmar Pagamento</button>
+      <button type="button" class="sec" onclick="APP.fecharModal('modalQuickAdd')">Cancelar</button>
     </div>
-    <label>Categoria (para os gráficos)</label>
-    <select id="atalhoCategoria"></select>
-    <button onclick="APP.salvarAtalho()">💾 Adicionar Atalho</button>
-    <button class="sec" onclick="APP.fecharModal('modalGerenciarAtalhos')">Fechar</button>
   </div>
-</div>
 
-<!-- OUTROS MODAIS OCULTOS -->
-<div class="modal-overlay" id="modalEditarConta"><div class="modal-content"><h2>Editar Contas</h2><div id="formContas"></div><button onclick="APP.salvarContas()">Salvar</button><button class="sec" onclick="APP.fecharModal('modalEditarConta')">Cancelar</button></div></div>
-<div class="modal-overlay" id="modalEmprestimo"><div class="modal-content"><h2>Empréstimo</h2><input type="hidden" id="empIdEdit" /><label>Nome</label><input id="empPessoa" /><div class="pill-group"><button data-emp-tipo="emprestei" onclick="APP.setEmpTipo('emprestei', this)">Emprestei</button><button data-emp-tipo="peguei" onclick="APP.setEmpTipo('peguei', this)">Peguei</button></div><label>Valor</label><input id="empValor" type="text" inputmode="decimal" /><button onclick="APP.salvarEmprestimo()">Salvar</button><button class="sec" onclick="APP.fecharModal('modalEmprestimo')">Cancelar</button></div></div>
-<div class="modal-overlay" id="modalPagamento"><div class="modal-content"><h2>Pagar Empréstimo</h2><input type="hidden" id="pagEmpId" /><p class="hint" id="pagInfo"></p><label>Valor</label><input id="pagValor" type="text" inputmode="decimal" /><button onclick="APP.salvarPagamento()">Salvar</button><button class="sec" onclick="APP.fecharModal('modalPagamento')">Cancelar</button></div></div>
-<div class="modal-overlay" id="modalHistoricoEmp"><div class="modal-content"><h2>Histórico</h2><div id="historicoEmpContent"></div><button class="sec" onclick="APP.fecharModal('modalHistoricoEmp')">Fechar</button></div></div>
-<div class="modal-overlay" id="modalInatConfig"><div class="modal-content"><h2>Inatividade</h2><div class="timeout-options" id="timeoutOptions"><button data-ms="300000" onclick="APP.inat.escolherTempo(300000)">5 min</button><button data-ms="900000" onclick="APP.inat.escolherTempo(900000)">15 min</button><button data-ms="0" onclick="APP.inat.escolherTempo(0)">Nunca</button></div><button onclick="APP.inat.fecharConfig()">Fechar</button></div></div>
-<div class="modal-overlay" id="inatWarning"><div class="modal-content"><h2>Sessão expirando</h2><div class="inat-countdown"><span id="inatCountdown">60</span>s</div><button onclick="APP.inat.continuar()">Continuar</button></div></div>
+  <!-- Modal para gerenciar atalhos -->
+  <div class="modal-overlay" id="modalGerenciarAtalhos" role="dialog" aria-modal="true" aria-labelledby="atalhosTitle">
+    <div class="modal-content">
+      <h2 id="atalhosTitle" style="color:var(--info);margin-bottom:15px;">⚙️ Personalizar Atalhos</h2>
+      <div id="listaAtalhosConfig"></div>
+      <hr style="border-color:var(--border);margin:15px 0;">
+      <h3 style="font-size:0.9rem;margin-bottom:10px;color:var(--text);">➕ Novo Atalho</h3>
+      <div class="row">
+        <label class="sr-only" for="atalhoEmoji">Emoji do atalho</label><input id="atalhoEmoji" placeholder="Emoji (ex: 💡)" style="flex:1;text-align:center;" maxlength="2">
+        <label class="sr-only" for="atalhoNome">Nome do atalho</label><input id="atalhoNome" placeholder="Nome (ex: Energia)" style="flex:3;">
+      </div>
+      <label for="atalhoCategoria">Categoria (para os gráficos)</label>
+      <select id="atalhoCategoria"></select>
+      <button type="button" onclick="APP.salvarAtalho()">💾 Adicionar Atalho</button>
+      <button type="button" class="sec" onclick="APP.fecharModal('modalGerenciarAtalhos')">Fechar</button>
+    </div>
+  </div>
 
-<script type="module" src="js/app.js"></script>
+  <!-- Outros modais -->
+  <div class="modal-overlay" id="modalEditarConta" role="dialog" aria-modal="true"><div class="modal-content"><h2>Editar Contas</h2><div id="formContas"></div><button type="button" onclick="APP.salvarContas()">Salvar</button><button type="button" class="sec" onclick="APP.fecharModal('modalEditarConta')">Cancelar</button></div></div>
+  <div class="modal-overlay" id="modalEmprestimo" role="dialog" aria-modal="true"><div class="modal-content"><h2>Empréstimo</h2><input type="hidden" id="empIdEdit"><label for="empPessoa">Nome</label><input id="empPessoa"><div class="pill-group"><button type="button" data-emp-tipo="emprestei" onclick="APP.setEmpTipo('emprestei', this)">Emprestei</button><button type="button" data-emp-tipo="peguei" onclick="APP.setEmpTipo('peguei', this)">Peguei</button></div><label for="empValor">Valor</label><input id="empValor" type="text" inputmode="decimal"><button type="button" onclick="APP.salvarEmprestimo()">Salvar</button><button type="button" class="sec" onclick="APP.fecharModal('modalEmprestimo')">Cancelar</button></div></div>
+  <div class="modal-overlay" id="modalPagamento" role="dialog" aria-modal="true"><div class="modal-content"><h2>Pagar Empréstimo</h2><input type="hidden" id="pagEmpId"><p class="hint" id="pagInfo"></p><label for="pagValor">Valor</label><input id="pagValor" type="text" inputmode="decimal"><button type="button" onclick="APP.salvarPagamento()">Salvar</button><button type="button" class="sec" onclick="APP.fecharModal('modalPagamento')">Cancelar</button></div></div>
+  <div class="modal-overlay" id="modalHistoricoEmp" role="dialog" aria-modal="true"><div class="modal-content"><h2>Histórico</h2><div id="historicoEmpContent"></div><button type="button" class="sec" onclick="APP.fecharModal('modalHistoricoEmp')">Fechar</button></div></div>
+  <div class="modal-overlay" id="modalInatConfig" role="dialog" aria-modal="true"><div class="modal-content"><h2>Inatividade</h2><div class="timeout-options" id="timeoutOptions"><button type="button" data-ms="300000" onclick="APP.inat.escolherTempo(300000)">5 min</button><button type="button" data-ms="900000" onclick="APP.inat.escolherTempo(900000)">15 min</button><button type="button" data-ms="0" onclick="APP.inat.escolherTempo(0)">Nunca</button></div><button type="button" onclick="APP.inat.fecharConfig()">Fechar</button></div></div>
+  <div class="modal-overlay" id="inatWarning" role="dialog" aria-modal="true" aria-labelledby="inatTitle"><div class="modal-content"><h2 id="inatTitle">Sessão expirando</h2><div class="inat-countdown"><span id="inatCountdown">60</span>s</div><button type="button" onclick="APP.inat.continuar()">Continuar</button></div></div>
+
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>
