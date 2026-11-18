@@ -83,6 +83,7 @@
         <p class="hint" style="margin-bottom:12px;">Toque no seu atalho e digite só o valor.</p>
         <div class="quick-grid" id="quickGrid"></div>
         <div id="semAtalhos" class="empty" style="display:none;">Nenhum atalho criado.<br>Clique em ⚙️ Personalizar.</div>
+        <button class="btn-voz" onclick="APP.voz.iniciar()" style="margin-top:15px;">🎙️ Falar Gasto (Ex: Pão 10 reais)</button>
       </div>
       <div class="card">
         <h2>📝 Nova Transação</h2>
@@ -110,6 +111,7 @@
       <div class="card"><h2>📊 Em Aberto</h2><div id="listaEmprestimos"></div></div>
       <div class="card"><h2>✅ Quitados</h2><div id="listaQuitados"></div></div>
       <div class="card"><h2>📜 Histórico Geral de Pagamentos</h2><div id="historicoPagamentos"></div></div>
+      </div>
     </section>
     <section class="tab" id="tab-analises" aria-label="Análises">
       <div class="card"><h2>📈 Gastos por Categoria</h2><div class="chart-container"><canvas id="chartPizza" role="img" aria-label="Gráfico de gastos por categoria"></canvas></div><div id="semDadosPizza" class="empty" style="display:none;">Sem saídas.</div></div>
@@ -171,6 +173,45 @@
   <div class="modal-overlay" id="modalHistoricoEmp" role="dialog" aria-modal="true"><div class="modal-content"><h2>📜 Histórico de Pagamentos</h2><div id="historicoEmpContent"></div><button type="button" class="sec" onclick="APP.fecharModal('modalHistoricoEmp')">Fechar</button></div></div>
   <div class="modal-overlay" id="modalInatConfig" role="dialog" aria-modal="true"><div class="modal-content"><h2>⏱️ Logout Automático</h2><p class="hint">Escolha o tempo sem atividade antes de desconectar.</p><div class="timeout-options" id="timeoutOptions"><button type="button" data-ms="300000" onclick="APP.inat.escolherTempo(300000)">5 minutos</button><button type="button" data-ms="600000" onclick="APP.inat.escolherTempo(600000)">10 minutos</button><button type="button" data-ms="900000" onclick="APP.inat.escolherTempo(900000)">15 minutos</button><button type="button" data-ms="1800000" onclick="APP.inat.escolherTempo(1800000)">30 minutos</button><button type="button" data-ms="3600000" onclick="APP.inat.escolherTempo(3600000)">60 minutos</button><button type="button" data-ms="0" onclick="APP.inat.escolherTempo(0)">🚫 Nunca</button></div><button type="button" onclick="APP.inat.fecharConfig()">Fechar</button></div></div>
   <div class="modal-overlay" id="inatWarning" role="dialog" aria-modal="true" aria-labelledby="inatTitle"><div class="modal-content"><h2 id="inatTitle">Sessão expirando</h2><p class="hint">Por segurança, você será desconectado em:</p><div class="inat-countdown"><span id="inatCountdown">60</span> segundos</div><button type="button" onclick="APP.inat.continuar()">✋ Continuar conectado</button><button type="button" class="sec" onclick="APP.auth.sair(true)">Sair agora</button></div></div>
+
+  <!-- MODAL DE OUVIR -->
+  <div class="modal-overlay" id="modalVoz">
+    <div class="modal-content" style="text-align:center;">
+      <div class="inat-icon" style="font-size:4rem;">🎙️</div>
+      <h2 style="color:var(--info); margin-bottom:10px;">Ouvindo...</h2>
+      <p id="vozStatus">Fale agora.</p>
+    </div>
+  </div>
+
+  <!-- MODAL DE CONFIRMAÇÃO DA VOZ -->
+  <div class="modal-overlay" id="modalVozResult">
+    <div class="modal-content">
+      <h2 style="color:var(--info); margin-bottom:10px;">🎙️ O que eu entendi:</h2>
+      <p style="font-style:italic; color:var(--muted); margin-bottom:15px;" id="vozTexto"></p>
+
+      <label>Descrição</label>
+      <input type="text" id="vozDesc" />
+
+      <label>Valor (R$)</label>
+      <input type="text" id="vozValor" inputmode="decimal" />
+
+      <label>Categoria (Adivinhada)</label>
+      <select id="vozCat">
+        <option value="Alimentação">Alimentação</option>
+        <option value="Transporte">Transporte</option>
+        <option value="Moradia">Moradia</option>
+        <option value="Lazer">Lazer</option>
+        <option value="Saúde">Saúde</option>
+        <option value="Educação">Educação</option>
+        <option value="Contas Fixas">Contas Fixas</option>
+        <option value="Outros">Outros</option>
+      </select>
+
+      <button onclick="APP.voz.salvar()" style="margin-top:10px;">💾 Confirmar e Salvar</button>
+      <button class="sec" onclick="APP.fecharModal('modalVozResult')">Cancelar</button>
+    </div>
+  </div>
+
 
   <script type="module" src="js/lab-features.js"></script>
 </body>
