@@ -101,10 +101,42 @@ window.APP = {
   },
 
   salvarTransacao: async () => {
-    const desc = document.getElementById('novaDesc').value.trim(); const valor = parseMoeda(document.getElementById('novaValor').value); const conta = document.getElementById('novaConta').value;
-    if (!desc || valor <= 0 || !conta) return alert('Preencha tudo.');
-    const t = { tipo: tipoAtual, desc, valor, data: document.getElementById('novaData').value, conta, categoria: document.getElementById('novaCategoria').value, criadoEm: Date.now() };
-    try { await update(APP.dbRef, { ['transacoes/t'+Date.now()]: t }); document.getElementById('novaDesc').value = ''; document.getElementById('novaValor').value = ''; alert('✅ Salvo!'); } catch(e) { alert(e.message); }
+    const desc = document.getElementById('novaDesc').value.trim();
+    const valor = parseMoeda(document.getElementById('novaValor').value);
+    const conta = document.getElementById('novaConta').value;
+    const contaDestino = document.getElementById('novaContaDestino').value;
+
+    if (!desc || valor <= 0 || !conta || (tipoAtual === 'transferencia' && !contaDestino)) {
+      return alert('Preencha todos os campos.');
+    }
+
+    const t = {
+      tipo: tipoAtual,
+      desc,
+      valor,
+      data: document.getElementById('novaData').value,
+      conta,
+      categoria: document.getElementById('novaCategoria').value,
+      criadoEm: Date.now(),
+      ...(tipoAtual === 'transferencia' && { contaDestino })
+    };
+
+    try {
+      await update(APP.dbRef, { ['transacoes/t' + Date.now()]: t });
+
+      // Atualizar saldos para transferências
+      if (tipoAtual === 'transferencia') {
+        APP.estado.contas[conta].saldoInicial -= valor;
+        APP.estado.contas[contaDestino].saldoInicial += valor;
+        await update(APP.dbRef, { contas: APP.estado.contas });
+      }
+
+      document.getElementById('novaDesc').value = '';
+      document.getElementById('novaValor').value = '';
+      alert('✅ Salvo!');
+    } catch (e) {
+      alert('Erro: ' + e.message);
+    }
   },
 
   abrirEditarConta: () => {
@@ -140,7 +172,44 @@ onAuthStateChanged(auth, (user) => {
     if (!pinHash) pinApp.configurarSetup();
     else if (pinHash === 'SKIPPED') { document.getElementById('pinOverlay').classList.add('hidden'); APP.iniciar(); }
     else pinApp.abrirLogin();
-  } else {
+  } else {salvarTransacao: async () => {
+    const desc = document.getElementById('novaDesc').value.trim();
+    const valor = parseMoeda(document.getElementById('novaValor').value);
+    const conta = document.getElementById('novaConta').value;
+    const contaDestino = document.getElementById('novaContaDestino').value;
+
+    if (!desc || valor <= 0 || !conta || (tipoAtual === 'transferencia' && !contaDestino)) {
+      return alert('Preencha todos os campos.');
+    }
+
+    const t = {
+      tipo: tipoAtual,
+      desc,
+      valor,
+      data: document.getElementById('novaData').value,
+      conta,
+      categoria: document.getElementById('novaCategoria').value,
+      criadoEm: Date.now(),
+      ...(tipoAtual === 'transferencia' && { contaDestino })
+    };
+
+    try {
+      await update(APP.dbRef, { ['transacoes/t' + Date.now()]: t });
+
+      // Atualizar saldos para transferências
+      if (tipoAtual === 'transferencia') {
+        APP.estado.contas[conta].saldoInicial -= valor;
+        APP.estado.contas[contaDestino].saldoInicial += valor;
+        await update(APP.dbRef, { contas: APP.estado.contas });
+      }
+
+      document.getElementById('novaDesc').value = '';
+      document.getElementById('novaValor').value = '';
+      alert('✅ Salvo!');
+    } catch (e) {
+      alert('Erro: ' + e.message);
+    }
+  },
     appIniciado = false; inatApp.stop();
     document.getElementById('authOverlay').classList.remove('hidden');
     document.getElementById('pinOverlay').classList.add('hidden');
