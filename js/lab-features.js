@@ -68,28 +68,25 @@ function ensureExpectedFields() {
     }
   }
 
+// Conectar os eventos aos elementos existentes no HTML
+function ensureExpectedFields() {
   const config = el('tab-config');
-  if (config && !el('labOfficialOptions')) {
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.id = 'labOfficialOptions';
-    card.innerHTML = `
-      <h2>🔐 Segurança e sessão</h2>
-      <button type="button" class="sec" id="labChangePin">🔐 Alterar PIN (neste aparelho)</button>
-      <button type="button" class="sec" id="labDisablePin">🔓 Desativar PIN (neste aparelho)</button>
-      <p class="hint" id="inatCurrentLabel" style="text-align:center;color:var(--primary);font-weight:600;"></p>
-      <button type="button" class="sec" id="labInactivity">⏱️ Configurar logout automático</button>
-      <h2 style="margin-top:16px;">💾 Backup manual</h2>
-      <button type="button" class="sec" id="labExportJson">📤 Exportar backup (JSON)</button>
-      <button type="button" class="sec" id="labImportJson">📥 Importar backup (JSON)</button>
-      <input type="file" id="labBackupFile" accept=".json,application/json" hidden>
-      <h2 style="margin-top:16px;">📊 Exportar planilhas</h2>
-      <button type="button" class="sec" id="labExportPayments">📋 Pagamentos (CSV)</button>
-      <button type="button" class="sec" id="labExportTransactions">💸 Transações (CSV)</button>
-      <h2 style="margin-top:16px;">🧹 Zerar dados</h2>
-      <button type="button" class="danger" id="labClearData">⚠️ Zerar transações e empréstimos</button>`;
-    config.append(card);
+  if (config) {
+    el('labChangePin')?.addEventListener('click', () => window.APP.pin.configurarSetup());
+    el('labDisablePin')?.addEventListener('click', () => {
+      if (!confirm('Desativar o PIN neste aparelho? O app abrirá direto após o login.')) return;
+      localStorage.setItem(PIN_KEY, 'SKIPPED');
+      alert('PIN desativado neste aparelho.');
+    });
+    el('labInactivity')?.addEventListener('click', () => window.APP.inat.abrirConfig());
+    el('labExportJson')?.addEventListener('click', () => window.APP.exportar());
+    el('labImportJson')?.addEventListener('click', () => el('labBackupFile').click());
+    el('labBackupFile')?.addEventListener('change', importBackup);
+    el('labExportPayments')?.addEventListener('click', () => window.APP.exportarPagamentosCSV());
+    el('labExportTransactions')?.addEventListener('click', () => window.APP.exportarTransacoesCSV());
+    el('labClearData')?.addEventListener('click', () => window.APP.limparTudo());
   }
+}
 
   const panel = el('tab-painel');
   if (panel && !el('ultimasTransacoes')) {
@@ -282,7 +279,17 @@ function installFeatures() {
     if (!confirm('Apagar TODAS as transações e empréstimos da nuvem?')) return;
     if (!confirm('Tem CERTEZA? Esta ação não pode ser desfeita.')) return;
     try {
-      await update(featureRef, { transacoes: null, emprestimos: null, pagamentosEmprestimo: null });
+        const contasZeradas = {};
+
+        Object.entries(data.contas || {}).forEach(([id, conta]) => {
+          contasZeradas[id] = { ...conta, saldoInicial: 0 };
+        });
+        await update(featureRef, {
+          contas: contasZeradas,
+          transacoes: null,
+          emprestimos: null,
+          pagamentosEmprestimo: null
+      });
       alert('Dados zerados.');
     } catch (error) {
       alert(`Erro ao apagar dados: ${error.message}`);
