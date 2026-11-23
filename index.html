@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#10b981">
+  <meta name="description" content="Acompanhe suas contas, receitas, despesas e empréstimos em um só lugar.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Finanças Lab">
+  <title>🧪 Lab - Minhas Finanças</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧪</text></svg>">
+  <link rel="stylesheet" href="css/style.css">
+  <style>.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}</style>
+</head>
+<body>
+
+<!-- ===== TELA DE LOGIN (Firebase) ===== -->
+<div class="pin-overlay" id="authOverlay" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+  <div class="pin-box">
+    <div class="pin-icon" aria-hidden="true">💰</div>
+    <h2 id="authTitle">Entrar (Lab)</h2>
+    <p id="authSubtitle">Acesse suas finanças de qualquer aparelho</p>
+    <label for="authEmail">E-mail</label>
+    <input id="authEmail" type="email" placeholder="E-mail" autocomplete="email" required>
+    <label for="authSenha">Senha</label>
+    <input id="authSenha" type="password" placeholder="Senha" autocomplete="current-password" required>
+    <div class="pin-erro" id="authErro" role="alert" aria-live="polite"></div>
+    <button type="button" data-action="auth-entrar" id="authBtn">Entrar</button>
+    <button type="button" class="pin-link" data-action="auth-alternar" id="authToggle">Criar conta</button>
+    <button type="button" class="pin-link" data-action="auth-esqueci" id="authEsqueci" style="color:var(--info)">Esqueci minha senha</button>
+  </div>
+</div>
+
+<!-- ===== TELA DE PIN LOCAL ===== -->
+<div class="pin-overlay hidden" id="pinOverlay" role="dialog" aria-modal="true" aria-labelledby="pinTitle">
+  <div class="pin-box">
+    <div class="pin-icon" id="pinIcon" aria-hidden="true">🔒</div>
+    <h2 id="pinTitle">Digite seu PIN</h2>
+    <p id="pinSubtitle">Bloqueio rápido neste aparelho</p>
+    <label class="sr-only" for="pinInput">PIN</label>
+    <input type="tel" id="pinInput" class="pin-input" maxlength="6" inputmode="numeric" placeholder="••••" autocomplete="off">
+    <label class="sr-only" for="pinConfirm">Confirme seu PIN</label>
+    <input type="tel" id="pinConfirm" class="pin-input" maxlength="6" inputmode="numeric" placeholder="••••" autocomplete="off" style="display:none;">
+    <div class="pin-erro" id="pinErro" role="alert" aria-live="polite"></div>
+    <button type="button" data-action="pin-verificar" id="pinBtn">Entrar</button>
+    <button type="button" class="pin-link" data-action="pin-esqueci" id="pinEsqueci">Esqueci o PIN (sair)</button>
+    <button type="button" class="pin-link" data-action="pin-pular" id="pinPular" style="display:none;">Pular</button>
+  </div>
+</div>
+
+<!-- ===== CABEÇALHO ===== -->
+<header class="header">
+  <div class="header-bar">
+    <div class="left"><div class="sync-dot" id="syncDot" role="status" aria-label="Status de sincronização"></div></div>
+    <div class="right">
+      <button type="button" class="icon-btn" data-action="inat-config" aria-label="Configurar tempo de inatividade">⏱️</button>
+      <button type="button" class="icon-btn danger" data-action="auth-sair" aria-label="Sair da conta">🚪</button>
+    </div>
+  </div>
+  <h1>🧪 Lab Finanças</h1>
+  <p id="mesAtual" aria-live="polite"></p>
+  <div class="user-info" id="userInfo"></div>
+</header>
+
+<!-- ===== CONTEÚDO PRINCIPAL ===== -->
+<main>
+
+  <!-- PAINEL -->
+  <section class="tab active" id="tab-painel" aria-label="Painel financeiro">
+    <div class="saldo-total" id="saldoTotalBox">
+      <div class="label">Saldo Total</div>
+      <div class="valor" id="saldoTotalValor">R$ 0,00</div>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-box pos"><b id="kpiEntradas">R$ 0</b><span>Entradas no mês</span></div>
+      <div class="kpi-box neg"><b id="kpiSaidas">R$ 0</b><span>Saídas no mês</span></div>
+    </div>
+    <p class="hint" style="text-align:center;margin-top:-4px;margin-bottom:12px;">Transferências entre contas não entram nos totais de entradas e saídas.</p>
+    <div class="card"><h2>🏦 Saldo por Conta</h2><div id="contasResumo"></div></div>
+    <div class="card"><h2>💸 Empréstimo Familiar</h2><div id="emprestimoResumo"></div></div>
+    <div class="card"><h2>📋 Últimas Transações</h2><div id="ultimasTransacoes"></div></div>
+  </section>
+
+  <!-- LANÇAMENTOS -->
+  <section class="tab" id="tab-nova" aria-label="Lançamentos">
+    <div class="card" style="background:linear-gradient(135deg,#1e293b 0%,#0f172a 100%);border:1px solid var(--primary);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h2 style="color:var(--primary);margin:0;">⚡ Lançamento Rápido</h2>
+        <button type="button" class="sm sec" data-action="atalhos-gerenciar">⚙️ Personalizar</button>
+      </div>
+      <p class="hint" style="margin-bottom:12px;">Toque no seu atalho e digite só o valor.</p>
+      <div class="quick-grid" id="quickGrid"></div>
+      <div id="semAtalhos" class="empty" style="display:none;">Nenhum atalho criado.<br>Clique em ⚙️ Personalizar.</div>
+      <button type="button" class="btn-voz" data-action="voz-iniciar" style="margin-top:15px;background:var(--info);color:#fff;padding:12px;border-radius:8px;font-weight:bold;width:100%;">🎙️ Falar Gasto (Ex: Pão 10 reais)</button>
+    </div>
+    <div class="card">
+      <h2>📝 Nova Transação</h2>
+      <div class="pill-group" id="tipoGroup" role="group" aria-label="Tipo de lançamento">
+        <button type="button" data-action="tipo-transacao" data-tipo="entrada">⬆ Entrada</button>
+        <button type="button" data-action="tipo-transacao" data-tipo="saida" class="active">⬇ Saída</button>
+        <button type="button" data-action="tipo-transacao" data-tipo="transferencia">↔ Transf.</button>
+      </div>
+      <label for="novaDesc">Descrição</label>
+      <input id="novaDesc" placeholder="Ex: Salário, Mercado, Uber...">
+      <label for="novaValor">Valor (R$)</label>
+      <input id="novaValor" type="text" inputmode="decimal" placeholder="0,00">
+      <label for="novaData">Data</label>
+      <input id="novaData" type="date">
+      <label for="novaConta">Conta</label>
+      <select id="novaConta"></select>
+      <div id="contaDestinoWrap" style="display:none;">
+        <label for="novaContaDestino">Conta de Destino</label>
+        <select id="novaContaDestino"></select>
+      </div>
+      <label for="novaCategoria">Categoria</label>
+      <select id="novaCategoria"></select>
+      <button type="button" data-action="transacao-salvar">💾 Salvar Transação</button>
+    </div>
+    <div class="card"><h2>📋 Todas as Transações</h2><div id="todasTransacoes"></div></div>
+  </section>
+
+  <!-- CONTAS -->
+  <section class="tab" id="tab-contas" aria-label="Contas">
+    <div class="card">
+      <h2>🏦 Minhas Contas</h2>
+      <div id="listaContas"></div>
+      <button type="button" class="sec" data-action="contas-editar">⚙️ Editar Contas</button>
+    </div>
+  </section>
+
+  <!-- EMPRÉSTIMOS -->
+  <section class="tab" id="tab-emprestimos" aria-label="Empréstimos">
+    <div class="card">
+      <h2>🤝 Empréstimos Familiares</h2>
+      <button type="button" data-action="emp-novo">➕ Novo Empréstimo</button>
+    </div>
+    <div class="card"><h2>📊 Em Aberto</h2><div id="listaEmprestimos"></div></div>
+    <div class="card"><h2>✅ Quitados</h2><div id="listaQuitados"></div></div>
+    <div class="card"><h2>📜 Histórico Geral de Pagamentos</h2><div id="historicoPagamentos"></div></div>
+  </section>
+
+  <!-- ANÁLISES -->
+  <section class="tab" id="tab-analises" aria-label="Análises">
+    <div class="card">
+      <h2>📈 Gastos por Categoria</h2>
+      <div class="chart-container"><canvas id="chartPizza" role="img" aria-label="Gráfico de gastos por categoria"></canvas></div>
+      <div id="semDadosPizza" class="empty" style="display:none;">Sem saídas.</div>
+    </div>
+    <div class="card">
+      <h2>📊 Entradas vs Saídas</h2>
+      <p class="hint" style="text-align:center;">Transferências entre contas não são contabilizadas nos gráficos.</p>
+      <div class="chart-container" style="height:250px;"><canvas id="chartBarras" role="img" aria-label="Gráfico de entradas e saídas"></canvas></div>
+    </div>
+  </section>
+
+  <!-- CONFIGURAÇÕES -->
+  <section class="tab" id="tab-config" aria-label="Configurações">
+    <div class="card">
+      <h2>👤 Conta</h2>
+      <p class="hint" id="contaInfo"></p>
+      <button type="button" class="danger" data-action="auth-sair">🚪 Sair da Conta</button>
+    </div>
+    <div class="card">
+      <h2>🔐 Segurança e sessão</h2>
+      <button type="button" class="sec" data-action="pin-trocar">🔐 Alterar PIN (neste aparelho)</button>
+      <button type="button" class="sec" data-action="pin-desativar">🔓 Desativar PIN (neste aparelho)</button>
+      <p class="hint" id="inatCurrentLabel" style="text-align:center;color:var(--primary);font-weight:600;"></p>
+      <button type="button" class="sec" data-action="inat-config">⏱️ Configurar logout automático</button>
+    </div>
+    <div class="card">
+      <h2>💾 Backup manual</h2>
+      <button type="button" class="sec" data-action="backup-exportar">📤 Exportar backup (JSON)</button>
+      <button type="button" class="sec" data-action="backup-importar">📥 Importar backup (JSON)</button>
+      <input type="file" id="labBackupFile" accept=".json,application/json" hidden>
+    </div>
+    <div class="card">
+      <h2>📊 Exportar planilhas</h2>
+      <button type="button" class="sec" data-action="csv-pagamentos">📋 Pagamentos (CSV)</button>
+      <button type="button" class="sec" data-action="csv-transacoes">💸 Transações (CSV)</button>
+    </div>
+    <div class="card">
+      <h2>🧹 Zerar Dados</h2>
+      <button type="button" class="danger" data-action="dados-zerar">⚠️ Zerar Transações e Empréstimos</button>
+    </div>
+  </section>
+
+</main>
+
+<!-- ===== BARRA DE NAVEGAÇÃO ===== -->
+<nav class="tabbar" aria-label="Navegação principal">
+  <button type="button" class="active" data-action="tab" data-tab="painel" aria-label="Painel" aria-current="page">📊<br>Painel</button>
+  <button type="button" data-action="tab" data-tab="contas" aria-label="Contas">🏦<br>Contas</button>
+  <button type="button" data-action="tab" data-tab="nova" aria-label="Lançamentos">➕<br>Nova</button>
+  <button type="button" data-action="tab" data-tab="emprestimos" aria-label="Empréstimos">🤝<br>Emprést.</button>
+  <button type="button" data-action="tab" data-tab="analises" aria-label="Análises">📈<br>Análise</button>
+  <button type="button" data-action="tab" data-tab="config" aria-label="Configurações">⚙️<br>Config</button>
+</nav>
+
+<!-- ===== MODAIS ===== -->
+
+<!-- Quick Add (atalho rápido) -->
+<div class="modal-overlay" id="modalQuickAdd" role="dialog" aria-modal="true" aria-labelledby="quickTitle">
+  <div class="modal-content" style="text-align:center;max-width:350px;">
+    <h2 id="quickTitle" style="color:var(--primary);margin-bottom:15px;">Atalho</h2>
+    <label class="sr-only" for="quickValor">Valor do lançamento</label>
+    <input type="text" id="quickValor" inputmode="decimal" placeholder="0,00"
+      style="font-size:2.5rem;text-align:center;padding:15px;font-weight:bold;margin-bottom:15px;background:var(--card-dark);color:var(--primary);border:2px solid var(--primary);">
+    <button type="button" data-action="atalho-confirmar" style="font-size:1.2rem;padding:15px;">✅ Confirmar Pagamento</button>
+    <button type="button" class="sec" data-action="fechar-modal" data-modal="modalQuickAdd">Cancelar</button>
+  </div>
+</div>
+
+<!-- Gerenciar atalhos -->
+<div class="modal-overlay" id="modalGerenciarAtalhos" role="dialog" aria-modal="true" aria-labelledby="atalhosTitle">
+  <div class="modal-content">
+    <h2 id="atalhosTitle" style="color:var(--info);margin-bottom:15px;">⚙️ Personalizar Atalhos</h2>
+    <div id="listaAtalhosConfig"></div>
+    <hr style="border-color:var(--border);margin:15px 0;">
+    <h3 style="font-size:0.9rem;margin-bottom:10px;color:var(--text);">➕ Novo Atalho</h3>
+    <div class="row">
+      <label class="sr-only" for="atalhoEmoji">Emoji do atalho</label>
+      <input id="atalhoEmoji" placeholder="Emoji (ex: 💡)" style="flex:1;text-align:center;" maxlength="2">
+      <label class="sr-only" for="atalhoNome">Nome do atalho</label>
+      <input id="atalhoNome" placeholder="Nome (ex: Energia)" style="flex:3;">
+    </div>
+    <label for="atalhoCategoria">Categoria (para os gráficos)</label>
+    <select id="atalhoCategoria"></select>
+    <button type="button" data-action="atalho-salvar">💾 Adicionar Atalho</button>
+    <button type="button" class="sec" data-action="fechar-modal" data-modal="modalGerenciarAtalhos">Fechar</button>
+  </div>
+</div>
+
+<!-- Editar contas -->
+<div class="modal-overlay" id="modalEditarConta" role="dialog" aria-modal="true">
+  <div class="modal-content">
+    <h2>⚙️ Editar Contas</h2>
+    <div id="formContas"></div>
+    <button type="button" data-action="contas-salvar">💾 Salvar</button>
+    <button type="button" class="sec" data-action="fechar-modal" data-modal="modalEditarConta">Cancelar</button>
+  </div>
+</div>
+
+<!-- Novo / editar empréstimo -->
+<div class="modal-overlay" id="modalEmprestimo" role="dialog" aria-modal="true">
+  <div class="modal-content">
+    <h2 id="tituloModalEmp">🤝 Novo Empréstimo</h2>
+    <input type="hidden" id="empIdEdit">
+    <label for="empPessoa">Nome da Pessoa</label>
+    <input id="empPessoa" placeholder="Ex: Tio João">
+    <label>Tipo</label>
+    <div class="pill-group">
+      <button type="button" data-action="emp-tipo" data-emp-tipo="emprestei">💸 Eu emprestei</button>
+      <button type="button" data-action="emp-tipo" data-emp-tipo="peguei">🤲 Eu peguei</button>
+    </div>
+    <p class="hint" id="empTipoHint"></p>
+    <label for="empValor">Valor Total (R$)</label>
+    <input id="empValor" type="text" inputmode="decimal" placeholder="0,00">
+    <label for="empData">Data</label>
+    <input id="empData" type="date">
+    <label for="empObs">Observação (opcional)</label>
+    <input id="empObs" placeholder="Ex: pagar em 3x">
+    <button type="button" data-action="emp-salvar">💾 Salvar</button>
+    <button type="button" class="sec" data-action="fechar-modal" data-modal="modalEmprestimo">Cancelar</button>
+  </div>
+</div>
+
+<!-- Registrar pagamento de empréstimo -->
+<div class="modal-overlay" id="modalPagamento" role="dialog" aria-modal="true">
+  <div class="modal-content">
+    <h2>💰 Registrar Pagamento</h2>
+    <input type="hidden" id="pagEmpId">
+    <p class="hint" id="pagInfo"></p>
+    <label for="pagValor">Valor Pago (R$)</label>
+    <input id="pagValor" type="text" inputmode="decimal" placeholder="0,00">
+    <label for="pagData">Data</label>
+    <input id="pagData" type="date">
+    <label for="pagConta">Conta (opcional)</label>
+    <select id="pagConta"><option value="">— Não registrar em conta —</option></select>
+    <button type="button" data-action="emp-pagamento-salvar">💾 Salvar Pagamento</button>
+    <button type="button" class="sec" data-action="fechar-modal" data-modal="modalPagamento">Cancelar</button>
+  </div>
+</div>
+
+<!-- Histórico de pagamentos de um empréstimo -->
+<div class="modal-overlay" id="modalHistoricoEmp" role="dialog" aria-modal="true">
+  <div class="modal-content">
+    <h2>📜 Histórico de Pagamentos</h2>
+    <div id="historicoEmpContent"></div>
+    <button type="button" class="sec" data-action="fechar-modal" data-modal="modalHistoricoEmp">Fechar</button>
+  </div>
+</div>
+
+<!-- Configurar inatividade -->
+<div class="modal-overlay" id="modalInatConfig" role="dialog" aria-modal="true">
+  <div class="modal-content">
+    <h2>⏱️ Logout Automático</h2>
+    <p class="hint">Escolha o tempo sem atividade antes de desconectar.</p>
+    <div class="timeout-options" id="timeoutOptions">
+      <button type="button" data-action="inat-tempo" data-ms="300000">5 minutos</button>
+      <button type="button" data-action="inat-tempo" data-ms="600000">10 minutos</button>
+      <button type="button" data-action="inat-tempo" data-ms="900000">15 minutos</button>
+      <button type="button" data-action="inat-tempo" data-ms="1800000">30 minutos</button>
+      <button type="button" data-action="inat-tempo" data-ms="3600000">60 minutos</button>
+      <button type="button" data-action="inat-tempo" data-ms="0">🚫 Nunca</button>
+    </div>
+    <button type="button" data-action="fechar-modal" data-modal="modalInatConfig">Fechar</button>
+  </div>
+</div>
+
+<!-- Aviso de expiração de sessão -->
+<div class="modal-overlay" id="inatWarning" role="dialog" aria-modal="true" aria-labelledby="inatTitle">
+  <div class="modal-content">
+    <h2 id="inatTitle">Sessão expirando</h2>
+    <p class="hint">Por segurança, você será desconectado em:</p>
+    <div class="inat-countdown"><span id="inatCountdown">60</span> segundos</div>
+    <button type="button" data-action="inat-continuar">✋ Continuar conectado</button>
+    <button type="button" class="sec" data-action="auth-sair">Sair agora</button>
+  </div>
+</div>
+
+<!-- Modal de voz (ouvindo) -->
+<div class="modal-overlay" id="modalVoz">
+  <div class="modal-content" style="text-align:center;">
+    <div class="inat-icon" style="font-size:4rem;">🎙️</div>
+    <h2 style="color:var(--info);margin-bottom:10px;">Ouvindo...</h2>
+    <p id="vozStatus">Fale agora.</p>
+  </div>
+</div>
+
+<!-- Modal de confirmação de voz -->
+<div class="modal-overlay" id="modalVozResult">
+  <div class="modal-content">
+    <h2 style="color:var(--info);margin-bottom:10px;">🎙️ O que eu entendi:</h2>
+    <p style="font-style:italic;color:var(--muted);margin-bottom:15px;" id="vozTexto"></p>
+    <label for="vozDesc">Descrição</label>
+    <input type="text" id="vozDesc">
+    <label for="vozValor">Valor (R$)</label>
+    <input type="text" id="vozValor" inputmode="decimal">
+    <label for="vozCat">Categoria (Adivinhada)</label>
+    <select id="vozCat">
+      <option value="Alimentação">Alimentação</option>
+      <option value="Transporte">Transporte</option>
+      <option value="Moradia">Moradia</option>
+      <option value="Lazer">Lazer</option>
+      <option value="Saúde">Saúde</option>
+      <option value="Educação">Educação</option>
+      <option value="Contas Fixas">Contas Fixas</option>
+      <option value="Outros">Outros</option>
+    </select>
+    <button type="button" data-action="voz-salvar" style="margin-top:10px;">💾 Confirmar e Salvar</button>
+    <button type="button" class="sec" data-action="fechar-modal" data-modal="modalVozResult">Cancelar</button>
+  </div>
+</div>
+
+<!-- ===== ENTRADA DO APP (módulos ES) ===== -->
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
