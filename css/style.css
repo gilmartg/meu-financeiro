@@ -89,3 +89,31 @@ button.sm { padding: 6px 10px; font-size: 0.78rem; width: auto; margin: 0; }
 
 /* LISTA DE ATALHOS NO MODAL */
 .atalho-item { display: flex; justify-content: space-between; align-items: center; background: var(--card-dark); padding: 10px; border-radius: 8px; margin-bottom: 6px; }
+/* ===== CLASSES UTILITÁRIAS ADICIONADAS NA MODULARIZAÇÃO ===== */
+:root { --success: #10b981; }
+
+/* Linha flex usada nos modais (ex: emoji + nome do atalho) */
+.row { display: flex; gap: 8px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 8px; }
+.row input, .row select { margin-bottom: 0; }
+
+/* Badge de categoria ou status em linha */
+.badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; background: var(--card-dark); color: var(--muted); }
+.badge.pos { background: rgba(16,185,129,0.15); color: var(--primary); }
+.badge.neg { background: rgba(239,68,68,0.15); color: var(--danger); }
+
+/* Separador horizontal leve entre itens */
+.linha-entre { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
+
+/* Resumo de empréstimos no painel */
+.resumo-emp { display: flex; justify-content: space-between; gap: 10px; font-size: 0.9rem; }
+.resumo-emp .item { flex: 1; }
+.resumo-emp .item b { display: block; font-size: 1.05rem; margin-top: 2px; }
+
+/* Botão "mostrar mais" transações */
+.btn-mais { background: none; border: 1px solid var(--border); color: var(--muted); font-size: 0.8rem; padding: 8px; margin-top: 6px; }
+.btn-mais:hover { border-color: var(--primary); color: var(--primary); background: rgba(16,185,129,0.06); }
+
+/* Timeout options no modal de inatividade */
+.timeout-options { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.timeout-options button { flex: 1; min-width: 100px; background: var(--card-dark); color: var(--muted); border: 1px solid var(--border); font-size: 0.85rem; padding: 10px 8px; margin: 0; }
+.timeout-options button.active { background: var(--primary); color: #fff; border-color: var(--primary); }

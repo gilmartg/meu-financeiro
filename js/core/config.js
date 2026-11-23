@@ -1,3 +1,6 @@
+// Configurações fixas do app.
+export const CHARTJS_URL = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/auto/+esm';
+
 export const CONFIG = {
   firebase: {
     apiKey: "AIzaSyBd6HByBm8ZS8o9t_IrzFV_eSWWqLKPOqY",
@@ -11,23 +14,14 @@ export const CONFIG = {
 };
 
 export const PIN_KEY = 'financas_pin_hash_v2';
+export const PIN_PULADO = 'SKIPPED';
 export const INAT_KEY = 'financas_inat_timeout';
 export const DEFAULT_INAT = 15 * 60 * 1000;
-
-export const TIMEOUT_OPCOES = [
-  { ms: 300000, label: '5 minutos' },
-  { ms: 600000, label: '10 minutos' },
-  { ms: 900000, label: '15 minutos' },
-  { ms: 1800000, label: '30 minutos' },
-  { ms: 3600000, label: '60 minutos' },
-  { ms: 0, label: '🚫 Nunca' }
-];
 
 export const CATEGORIAS = {
   entrada: ['Salário', 'Freelance', 'Investimentos', 'Vendas', 'Reembolso', 'Empréstimo recebido', 'Outros'],
   saida: ['Alimentação', 'Transporte', 'Moradia', 'Lazer', 'Saúde', 'Educação', 'Contas Fixas', 'Empréstimo pago', 'Outros']
 };
 
-export const CATEGORIAS_GERAIS = [
-  'Alimentação', 'Transporte', 'Moradia', 'Lazer', 'Saúde', 'Educação', 'Contas Fixas', 'Outros'
-];
+// Categorias oferecidas nos atalhos rápidos e na confirmação por voz.
+export const CATEGORIAS_RAPIDAS = ['Alimentação', 'Transporte', 'Moradia', 'Lazer', 'Saúde', 'Educação', 'Contas Fixas', 'Outros'];
