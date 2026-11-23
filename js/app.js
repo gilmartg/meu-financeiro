@@ -241,3 +241,4 @@ document.querySelectorAll('.modal-overlay').forEach(modal => {
     if (e.target === modal) UI.fecharModal(modal.id);
   });
 });
+
