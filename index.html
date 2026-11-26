@@ -9,6 +9,10 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Finanças Lab">
   <title>🧪 Lab - Minhas Finanças</title>
+
+  <!-- Configurações do PWA -->
+  <link rel="manifest" href="manifest.json">
+
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧪</text></svg>">
   <link rel="stylesheet" href="css/style.css">
   <style>.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}</style>
@@ -51,7 +55,13 @@
 
 <!-- ===== CABEÇALHO ===== -->
 <header class="header">
+
+
   <div class="header-bar">
+
+
+
+
     <div class="left"><div class="sync-dot" id="syncDot" role="status" aria-label="Status de sincronização"></div></div>
     <div class="right">
       <button type="button" class="icon-btn" data-action="inat-config" aria-label="Configurar tempo de inatividade">⏱️</button>
