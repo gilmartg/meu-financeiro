@@ -17,36 +17,16 @@ import { iniciarBackup } from './features/backup.js';
 import { renderizarGraficos } from './features/graficos.js';
 import { renderizarPainel, atualizarMes } from './features/painel.js';
 
-// Importações para o PWA
-import { getDatabase, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
-import { app } from './core/firebase.js';
-
-// ==========================================
-// 1. CONFIGURAÇÃO DO MODO OFFLINE (FIREBASE)
-// ==========================================
-const db = getDatabase(app);
-enableIndexedDbPersistence(db).catch((err) => {
-  if (err.code === 'failed-precondition') {
-    console.warn('Múltiplas abas abertas. O cache offline funcionará apenas na primeira.');
-  } else if (err.code === 'unimplemented') {
-    console.warn('O navegador não suporta persistência offline.');
-  }
-});
-
-// ==========================================
-// 2. CONFIGURAÇÃO DO PWA (SERVICE WORKER)
-// ==========================================
+// 1. REGISTRO DO SERVICE WORKER (PWA)
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./service-worker.js')
-      .then((reg) => console.log('✅ PWA: Service Worker registrado!', reg.scope))
-      .catch((err) => console.error('❌ PWA: Erro ao registrar', err));
+      .then(reg => console.log('✅ PWA registrado!', reg.scope))
+      .catch(err => console.error('❌ Erro PWA:', err));
   });
 }
 
-// ==========================================
-// 3. FUNÇÕES DO APP E INICIALIZAÇÃO
-// ==========================================
+// 2. FUNÇÕES E INICIALIZAÇÃO
 function renderizarTudo(estado) {
   renderizarContas(estado);
   renderizarPainel(estado);
@@ -70,12 +50,8 @@ iniciarVoz();
 iniciarBackup();
 aoEntrarNaAba('analises', () => setTimeout(renderizarGraficos, 50));
 
-// Só desenha dados depois que o PIN liberou o app.
-aoMudar((estado) => {
-  if (appLiberado()) renderizarTudo(estado);
-});
+aoMudar(estado => { if (appLiberado()) renderizarTudo(estado); });
 
-// Inicializa a sessão (com a chave e o fechamento corretos)
 iniciarSessao({
   aoLiberar: () => {
     atualizarMes();
